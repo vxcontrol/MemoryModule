@@ -835,7 +835,7 @@ FARPROC MemoryGetProcAddress(HMEMORYMODULE mod, LPCSTR name)
     }
 
     exports = (PIMAGE_EXPORT_DIRECTORY) (codeBase + directory->VirtualAddress);
-    if (exports->NumberOfNames == 0 || exports->NumberOfFunctions == 0) {
+    if (exports->NumberOfFunctions == 0) {
         // DLL doesn't export anything
         SetLastError(ERROR_PROC_NOT_FOUND);
         return NULL;
