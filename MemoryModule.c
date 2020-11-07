@@ -54,10 +54,16 @@
 #define IMAGE_SIZEOF_BASE_RELOCATION (sizeof(IMAGE_BASE_RELOCATION))
 #endif
 
-#ifdef _WIN64
-#define HOST_MACHINE IMAGE_FILE_MACHINE_AMD64
-#else
+#if defined(_M_IX86)
 #define HOST_MACHINE IMAGE_FILE_MACHINE_I386
+#elif defined(_M_AMD64)
+#define HOST_MACHINE IMAGE_FILE_MACHINE_AMD64
+#elif defined(_M_ARM)
+#define HOST_MACHINE IMAGE_FILE_MACHINE_ARMNT
+#elif defined(_M_ARM64)
+#define HOST_MACHINE IMAGE_FILE_MACHINE_ARM64
+#else
+#error Unsupported architecture
 #endif
 
 #include "MemoryModule.h"
