@@ -430,6 +430,44 @@ PerformBaseRelocation(PMEMORYMODULE module, ptrdiff_t delta)
                 }
                 break;
 
+            case IMAGE_REL_BASED_THUMB_MOV32:
+                {
+                    DWORD inst = *(DWORD *)(dest + offset);
+                    DWORD imm16 = ((inst << 1) & 0x0800) + ((inst << 12) & 0xf000) +
+                                  ((inst >> 20) & 0x0700) + ((inst >> 16) & 0x00ff);
+                    DWORD hi_delta;
+
+                    if ((inst & 0x8000fbf0) != 0x0000f240)
+                        fwprintf(stdout, L"wrong Thumb2 instruction %08x, expected MOVW\n", inst);
+
+                    imm16 += LOWORD(delta);
+                    hi_delta = HIWORD(delta) + HIWORD(imm16);
+                    *(DWORD *)(dest + offset) = (inst & 0x8f00fbf0) + ((imm16 >> 1) & 0x0400) +
+                                                          ((imm16 >> 12) & 0x000f) +
+                                                          ((imm16 << 20) & 0x70000000) +
+                                                          ((imm16 << 16) & 0xff0000);
+
+                    if (hi_delta != 0)
+                    {
+                        inst = *(DWORD *)(dest + offset + 4);
+                        imm16 = ((inst << 1) & 0x0800) + ((inst << 12) & 0xf000) +
+                                ((inst >> 20) & 0x0700) + ((inst >> 16) & 0x00ff);
+
+                        if ((inst & 0x8000fbf0) != 0x0000f2c0)
+                            fwprintf(stdout, L"wrong Thumb2 instruction %08x, expected MOVT\n", inst);
+
+                        imm16 += hi_delta;
+                        if (imm16 > 0xffff)
+                            fwprintf(stdout, L"resulting immediate value won't fit: %08x\n", imm16);
+                        *(DWORD *)(dest + offset + 4) = (inst & 0x8f00fbf0) +
+                                                                  ((imm16 >> 1) & 0x0400) +
+                                                                  ((imm16 >> 12) & 0x000f) +
+                                                                  ((imm16 << 20) & 0x70000000) +
+                                                                  ((imm16 << 16) & 0xff0000);
+                    }
+                }
+                break;
+
             default:
                 //printf("Unknown relocation: %d\n", type);
                 break;
