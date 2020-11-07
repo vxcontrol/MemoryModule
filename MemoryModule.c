@@ -419,14 +419,12 @@ PerformBaseRelocation(PMEMORYMODULE module, ptrdiff_t delta)
                 }
                 break;
 
-#ifdef _WIN64
             case IMAGE_REL_BASED_DIR64:
                 {
                     ULONGLONG *patchAddr64 = (ULONGLONG *) (dest + offset);
                     *patchAddr64 += (ULONGLONG) delta;
                 }
                 break;
-#endif
 
             default:
                 //printf("Unknown relocation: %d\n", type);
