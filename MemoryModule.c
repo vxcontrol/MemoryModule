@@ -411,6 +411,10 @@ PerformBaseRelocation(PMEMORYMODULE module, ptrdiff_t delta)
                 // skip relocation
                 break;
 
+            case IMAGE_REL_BASED_LOW:
+                *(WORD *)(dest + offset) += LOWORD(delta);
+                break;
+
             case IMAGE_REL_BASED_HIGHLOW:
                 // change complete 32 bit address
                 {
