@@ -603,7 +603,6 @@ HMEMORYMODULE MemoryLoadLibraryEx(const void *data, size_t size,
     PIMAGE_NT_HEADERS old_header;
     unsigned char *code, *headers;
     ptrdiff_t locationDelta;
-    SYSTEM_INFO sysInfo;
     PIMAGE_SECTION_HEADER section;
     DWORD i;
     size_t optionalSectionSize;
@@ -732,7 +731,7 @@ HMEMORYMODULE MemoryLoadLibraryEx(const void *data, size_t size,
     result->getProcAddress = getProcAddress;
     result->freeLibrary = freeLibrary;
     result->userdata = userdata;
-    result->pageSize = sysInfo.dwPageSize;
+    result->pageSize = old_header->OptionalHeader.SectionAlignment;
 #ifdef _WIN64
     result->blockedMemory = blockedMemory;
 #endif
@@ -808,6 +807,12 @@ error:
     // cleanup
     MemoryFreeLibrary(result);
     return NULL;
+}
+
+LPVOID MemoryGetCodeAddress(HMEMORYMODULE mod)
+{
+    PMEMORYMODULE module = (PMEMORYMODULE)mod;
+    return module ? (LPVOID)module->codeBase : NULL;
 }
 
 static int _compare(const void *a, const void *b)

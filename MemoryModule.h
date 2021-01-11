@@ -74,6 +74,12 @@ HMEMORYMODULE MemoryLoadLibraryEx(const void *, size_t,
 FARPROC MemoryGetProcAddress(HMEMORYMODULE, LPCSTR);
 
 /**
+ * Get the code base address of loading module to store it above.
+ * On load dynamic library it used as a handle of library instance.
+ */
+LPVOID MemoryGetCodeAddress(HMEMORYMODULE);
+
+/**
  * Free previously loaded EXE/DLL.
  */
 void MemoryFreeLibrary(HMEMORYMODULE);
